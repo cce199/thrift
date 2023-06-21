@@ -38,6 +38,7 @@ class TBinaryProtocol(TProtocolBase):
 
     def __init__(self, trans, strictRead=False, strictWrite=True, **kwargs):
         TProtocolBase.__init__(self, trans)
+        print("TBinaryProtocol-init")
         self.strictRead = strictRead
         self.strictWrite = strictWrite
         self.string_length_limit = kwargs.get('string_length_limit', None)
@@ -115,7 +116,9 @@ class TBinaryProtocol(TProtocolBase):
         self.trans.write(buff)
 
     def writeI32(self, i32):
+        # print("TBinaryProtocol-writeI32")
         buff = pack("!i", i32)
+        # print("TBinaryProtocol-writeI32" + str(buff))
         self.trans.write(buff)
 
     def writeI64(self, i64):
@@ -131,23 +134,43 @@ class TBinaryProtocol(TProtocolBase):
         self.trans.write(str)
 
     def readMessageBegin(self):
+        sz0 = self.readI32()
+        # print("TBinaryProtocol-readMessageBegin-0sz:" + str(sz0))
+        if sz0 == 0:
+            return ('',0,0)
         sz = self.readI32()
+        if sz == 0:
+            return ('',0,0)
+        # print(self.trans) <thrift.transport.TTransport.TBufferedTransport
+        # print("TBinaryProtocol-readMessageBegin-sz:" + str(sz))
         if sz < 0:
             version = sz & TBinaryProtocol.VERSION_MASK
-            if version != TBinaryProtocol.VERSION_1:
-                raise TProtocolException(
-                    type=TProtocolException.BAD_VERSION,
-                    message='Bad version in readMessageBegin: %d' % (sz))
+            print(version)
+            # if version != TBinaryProtocol.VERSION_1:
+            #     raise TProtocolException(
+            #         type=TProtocolException.BAD_VERSION,
+            #         message='Bad version in readMessageBegin: %d' % (sz))
             type = sz & TBinaryProtocol.TYPE_MASK
-            name = self.readString()
+            print("TBinaryProtocol-readMessageBegin-type:" + str(type))
+            # name = self.readString()
+            name = self.trans.readAll(sz)
+            print("TBinaryProtocol-readMessageBegin-name" + name.decode('utf-8'))
             seqid = self.readI32()
+            print("TBinaryProtocol-readMessageBegin-seqid" + str(seqid))
         else:
+            print(self.strictRead)
             if self.strictRead:
                 raise TProtocolException(type=TProtocolException.BAD_VERSION,
                                          message='No protocol version header')
             name = self.trans.readAll(sz)
-            type = self.readByte()
-            seqid = self.readI32()
+            name = name.decode('utf-8')
+            print("TBinaryProtocol-readMessageBegin-name:" + name)
+            # type = self.readByte()
+            type = self.readI16()
+            print("TBinaryProtocol-readMessageBegin-type:" + str(type))
+            # seqid = self.readI32()
+            seqid = self.readI16()
+            print("TBinaryProtocol-readMessageBegin-seqid:" + str(seqid))
         return (name, type, seqid)
 
     def readMessageEnd(self):
@@ -161,6 +184,8 @@ class TBinaryProtocol(TProtocolBase):
 
     def readFieldBegin(self):
         type = self.readByte()
+        # type = self.readI16()
+        # print("TBinaryProtocol-readFieldBegin:" + str(type))
         if type == TType.STOP:
             return (None, type, 0)
         id = self.readI16()
@@ -204,17 +229,27 @@ class TBinaryProtocol(TProtocolBase):
         return True
 
     def readByte(self):
+        # print("TBinaryProtocol-readByte")
+        # print(self.trans) <thrift.transport.TTransport.TSaslClientTransport
         buff = self.trans.readAll(1)
+        # print("TBinaryProtocol-readByteBuff")
         val, = unpack('!b', buff)
+        # print("TBinaryProtocol-readByteEnd:" + str(val))
         return val
 
     def readI16(self):
         buff = self.trans.readAll(2)
+        if len(buff) == 0:
+            return 0
         val, = unpack('!h', buff)
         return val
 
     def readI32(self):
+        # print("TBinaryProtocol-readI32 start ")
         buff = self.trans.readAll(4)
+        # print("TBinaryProtocol-readI32: " + str(buff))
+        if len(buff) == 0:
+            return 0
         val, = unpack('!i', buff)
         return val
 

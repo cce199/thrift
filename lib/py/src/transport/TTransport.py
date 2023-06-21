@@ -20,7 +20,7 @@
 from struct import pack, unpack
 from thrift.Thrift import TException
 from ..compat import BufferIO
-
+import time
 
 class TTransportException(TException):
     """Custom Transport Exception class"""
@@ -50,22 +50,33 @@ class TTransportBase(object):
         pass
 
     def close(self):
+        print("TTransportBase-close")
         pass
 
     def read(self, sz):
+        print("TTransportBase-read")
         pass
 
     def readAll(self, sz):
+        # print("TTransportBase-readAll")
+        # print(self)
         buff = b''
         have = 0
-        while (have < sz):
+        chunkLen = 0
+        if True: # while (have < sz):
+        # while chunkLen == 0:
             chunk = self.read(sz - have)
             chunkLen = len(chunk)
             have += chunkLen
             buff += chunk
+            # print("TTransport-chunkLen:" + str(chunkLen))
+            # print("TTransport-buff: " + str(buff))
 
             if chunkLen == 0:
-                raise EOFError()
+                buff = b''
+                # print("EOF")
+                # time.sleep(1000)
+                # raise EOFError()
 
         return buff
 
@@ -132,6 +143,20 @@ class TBufferedTransportFactory(object):
         buffered = TBufferedTransport(trans)
         return buffered
 
+class TSaslClientTransportFactory(object):
+    """Factory transport that builds buffered transports"""
+    def __init__(self):
+        # print("TSaslClientTransportFactory-init")
+        self.authResult = False
+        self.buffered = None
+
+    def getTransport(self, trans):
+        # trans thrift.transport.TSocket.TSocket
+        # print("TSaslClientTransportFactory-getTransport-trans" + str(trans))
+        if not self.authResult:
+            self.buffered = TSaslClientTransport(trans, '127.0.0.1', 'hive', mechanism='PLAIN')
+            self.authResult = self.buffered.getAuthResult()
+        return self.buffered
 
 class TBufferedTransport(TTransportBase, CReadableTransport):
     """Class that wraps another transport and buffers its I/O.
@@ -158,11 +183,33 @@ class TBufferedTransport(TTransportBase, CReadableTransport):
         return self.__trans.close()
 
     def read(self, sz):
+        print("TTransport-TBufferedTransport-read")
+        # print(self.__trans) <thrift.transport.TSocket.TSocket
+        # print(self.__rbuf) # <_io.BytesIO
         ret = self.__rbuf.read(sz)
+        # print("TTransport-readBuf:" + str(len(ret)))
         if len(ret) != 0:
-            return ret
-        self.__rbuf = BufferIO(self.__trans.read(max(sz, self.__rbuf_size)))
+            return ret 
+        # print(self.__trans.read(max(sz, self.__rbuf_size)))
+        print("TTransport-TBufferedTransport-read-trans.read")
+        # self.__rbuf = BufferIO(self.__trans.read(max(sz, self.__rbuf_size)))
+        self._read_frame()
+        # print("TTransport-readRBuf")
         return self.__rbuf.read(sz)
+
+        # self._read_frame()
+
+    def _read_frame(self):
+        header = self.__trans.readAll(4)
+        print("TTransport-TBufferedTransport-_read_frame-header:" + str(header))
+        if len(header) == 0:
+            self.__rbuf = BufferIO(b'')
+            return
+        length, = unpack('!i', header)
+        encoded = self.__trans.readAll(length)
+        print(encoded)
+        self.__rbuf = BufferIO(encoded)
+        print("TTransport-TBufferedTransport-_read_frame")
 
     def write(self, buf):
         try:
@@ -276,7 +323,7 @@ class TFramedTransport(TTransportBase, CReadableTransport):
         return self.__trans.close()
 
     def read(self, sz):
-        ret = self.__rbuf.read(sz)
+        ret = self.__rbuf.read(sz) #TSocket.read
         if len(ret) != 0:
             return ret
 
@@ -364,16 +411,31 @@ class TSaslClientTransport(TTransportBase, CReadableTransport):
         All other kwargs will be passed to the puresasl.client.SASLClient
         constructor.
         """
-
+        self.authResult = False
+        # print("TTransport-TSaslClientTransport-init")
         from puresasl.client import SASLClient
-
         self.transport = transport
+        # print("TTransport-TSaslClientTransport-init-isOpen" + str(self.transport.isOpen()))
+        
+        header = self.transport.readAll(4)
+        length, = unpack('!i', header)
+        encoded = self.transport.readAll(length)
+        sasl_kwargs = {"username": "username", "password": "passwd"}
+        # print("TTransport-TSaslClientTransport-init-encoded: " + str(encoded))
+
         self.sasl = SASLClient(host, service, mechanism, **sasl_kwargs)
 
         self.__wbuf = BufferIO()
         self.__rbuf = BufferIO(b'')
+        if True: # auth success
+            self.send_sasl_msg(self.COMPLETE, self.sasl.process())
+            self.authResult = True
+            
+        
+        # print(self.__rbuf)
 
     def open(self):
+        # print("TTransport-TSaslClientTransport-open")
         if not self.transport.isOpen():
             self.transport.open()
 
@@ -402,11 +464,13 @@ class TSaslClientTransport(TTransportBase, CReadableTransport):
         return self.transport.isOpen()
 
     def send_sasl_msg(self, status, body):
+        print("TTransport-TSaslClientTransport-send_sasl_msg")
         header = pack(">BI", status, len(body))
         self.transport.write(header + body)
         self.transport.flush()
 
     def recv_sasl_msg(self):
+        print("TTransport-TSaslClientTransport-recv_sasl_msg")
         header = self.transport.readAll(5)
         status, length = unpack(">BI", header)
         if length > 0:
@@ -426,22 +490,36 @@ class TSaslClientTransport(TTransportBase, CReadableTransport):
         self.__wbuf = BufferIO()
 
     def read(self, sz):
+        # print("TTransport-TSaslClientTransport-read-sz" + str(sz))
+        # print(self.__rbuf) # <_io.BytesIO
         ret = self.__rbuf.read(sz)
+        # print("TTransport-TSaslClientTransport-read-ret" + str(ret))
         if len(ret) != 0:
+            # print("TTransport-TSaslClientTransport-read-return")
             return ret
 
         self._read_frame()
+        # self.__rbuf = BufferIO(self.transport.read(sz))
         return self.__rbuf.read(sz)
 
     def _read_frame(self):
         header = self.transport.readAll(4)
+        # print("TTransport-TSaslClientTransport-_read_frame-header:" + str(header))
+        if len(header) == 0:
+            self.__rbuf = BufferIO(b'')
+            return
         length, = unpack('!i', header)
         encoded = self.transport.readAll(length)
         self.__rbuf = BufferIO(self.sasl.unwrap(encoded))
+        # print("TTransport-TSaslClientTransport-_read_frame")
 
     def close(self):
+        print("TTransport-TSaslClientTransport-close")
         self.sasl.dispose()
         self.transport.close()
+
+    def getAuthResult(self):
+        return self.authResult
 
     # based on TFramedTransport
     @property

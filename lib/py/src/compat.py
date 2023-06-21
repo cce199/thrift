@@ -40,6 +40,8 @@ else:
         return bin_val.decode('utf8')
 
     def str_to_binary(str_val):
+        if type(str_val) == bytes:
+            return str_val
         return bytes(str_val, 'utf8')
 
     def byte_index(bytes_val, i):

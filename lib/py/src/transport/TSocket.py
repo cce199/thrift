@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 class TSocketBase(TTransportBase):
     def _resolveAddr(self):
+        print("_resolveAddr")
         if self._unix_socket is not None:
             return [(socket.AF_UNIX, socket.SOCK_STREAM, None, None,
                      self._unix_socket)]
@@ -42,6 +43,7 @@ class TSocketBase(TTransportBase):
                                       socket.AI_PASSIVE)
 
     def close(self):
+        print("TSocketBase-close")
         if self.handle:
             self.handle.close()
             self.handle = None
@@ -62,6 +64,8 @@ class TSocket(TSocketBase):
         @param socket_family(int)  The socket family to use with this socket.
         @param socket_keepalive(bool) enable TCP keepalive, default off.
         """
+        print("TSocket-init")
+        # print("TSocket-isOpen" + str(self.isOpen()))
         self.host = host
         self.port = port
         self.handle = None
@@ -113,6 +117,7 @@ class TSocket(TSocketBase):
             self.handle.settimeout(self._timeout)
 
     def _do_open(self, family, socktype):
+        print("TSocket-_do_open")
         return socket.socket(family, socktype)
 
     @property
@@ -120,6 +125,7 @@ class TSocket(TSocketBase):
         return self._unix_socket if self._unix_socket else '%s:%d' % (self.host, self.port)
 
     def open(self):
+        print("TSocket-open")
         if self.handle:
             raise TTransportException(type=TTransportException.ALREADY_OPEN, message="already open")
         try:
@@ -150,8 +156,16 @@ class TSocket(TSocketBase):
 
     def read(self, sz):
         try:
+            # print(self.handle)
+            # print("TSocket-read")
+            # print(self.handle) # <socket.socket
             buff = self.handle.recv(sz)
+            # socket.MSG_DONTWAIT socket.MSG_TRUNC
+            # buff = self.handle.recv(sz )
+            # print("TSocket-read:" + str(buff))
+            # buff = buff[0]
         except socket.error as e:
+            print("TSocket-read-socket.error" + str(e))
             if (e.args[0] == errno.ECONNRESET and
                     (sys.platform == 'darwin' or sys.platform.startswith('freebsd'))):
                 # freebsd and Mach don't follow POSIX semantic of recv
@@ -160,14 +174,15 @@ class TSocket(TSocketBase):
                 # in lib/cpp/src/transport/TSocket.cpp.
                 self.close()
                 # Trigger the check to raise the END_OF_FILE exception below.
-                buff = ''
+                buff = b''
             elif e.args[0] == errno.ETIMEDOUT:
                 raise TTransportException(type=TTransportException.TIMED_OUT, message="read timeout", inner=e)
             else:
                 raise TTransportException(message="unexpected exception", inner=e)
         if len(buff) == 0:
-            raise TTransportException(type=TTransportException.END_OF_FILE,
-                                      message='TSocket read 0 bytes')
+            print("TSocket-read-TTransportException")
+            # raise TTransportException(type=TTransportException.END_OF_FILE,
+            #                           message='TSocket read 0 bytes')
         return buff
 
     def write(self, buff):
@@ -188,6 +203,7 @@ class TSocket(TSocketBase):
                 raise TTransportException(message="unexpected exception", inner=e)
 
     def flush(self):
+        # print("TSocket-flush")
         pass
 
 

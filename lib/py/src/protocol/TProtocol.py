@@ -48,6 +48,7 @@ class TProtocolBase(object):
     """Base class for Thrift protocol driver."""
 
     def __init__(self, trans):
+        print("TProtocolBase-init")
         self.trans = trans
         self._fast_decode = None
         self._fast_encode = None
@@ -191,6 +192,7 @@ class TProtocolBase(object):
         return self.readString().decode('utf8')
 
     def skip(self, ttype):
+        print(ttype)
         if ttype == TType.BOOL:
             self.readBool()
         elif ttype == TType.BYTE:
@@ -209,6 +211,7 @@ class TProtocolBase(object):
             name = self.readStructBegin()
             while True:
                 (name, ttype, id) = self.readFieldBegin()
+                # print(name)
                 if ttype == TType.STOP:
                     break
                 self.skip(ttype)
@@ -231,9 +234,8 @@ class TProtocolBase(object):
                 self.skip(etype)
             self.readListEnd()
         else:
-            raise TProtocolException(
-                TProtocolException.INVALID_DATA,
-                "invalid TType")
+            raise TProtocolException(TProtocolException.INVALID_DATA,"invalid TType")
+            # pass
 
     # tuple of: ( 'reader method' name, is_container bool, 'writer_method' name )
     _TTYPE_HANDLERS = (
