@@ -25,8 +25,9 @@ sys.path.append('gen-py')
 # sys.path.insert(0, glob.glob('../../lib/py/build/lib*')[0])
 sys.path.insert(0, glob.glob('../lib/py/build/lib*')[0])
 
-from tutorial import Calculator
-from tutorial.ttypes import InvalidOperation, Operation
+# from tutorial import Calculator
+import ThriftHiveMetastore
+from ttypes import InvalidOperationException
 
 from shared.ttypes import SharedStruct
 
@@ -36,7 +37,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 
 
-class CalculatorHandler:
+class SparkThriftHandler:
     def __init__(self):
         self.log = {}
 
@@ -50,18 +51,18 @@ class CalculatorHandler:
     def calculate(self, logid, work):
         print('calculate(%d, %r)' % (logid, work))
 
-        if work.op == Operation.ADD:
-            val = work.num1 + work.num2
-        elif work.op == Operation.SUBTRACT:
-            val = work.num1 - work.num2
-        elif work.op == Operation.MULTIPLY:
-            val = work.num1 * work.num2
-        elif work.op == Operation.DIVIDE:
-            if work.num2 == 0:
-                raise InvalidOperation(work.op, 'Cannot divide by 0')
-            val = work.num1 / work.num2
-        else:
-            raise InvalidOperation(work.op, 'Invalid operation')
+        # if work.op == Operation.ADD:
+        #     val = work.num1 + work.num2
+        # elif work.op == Operation.SUBTRACT:
+        #     val = work.num1 - work.num2
+        # elif work.op == Operation.MULTIPLY:
+        #     val = work.num1 * work.num2
+        # elif work.op == Operation.DIVIDE:
+        #     if work.num2 == 0:
+        #         raise InvalidOperationException(work.op, 'Cannot divide by 0')
+        #     val = work.num1 / work.num2
+        # else:
+        #     raise InvalidOperationException(work.op, 'Invalid operation')
 
         log = SharedStruct()
         log.key = logid
@@ -79,13 +80,14 @@ class CalculatorHandler:
 
 
 if __name__ == '__main__':
-    handler = CalculatorHandler()
-    processor = Calculator.Processor(handler)
+    handler = SparkThriftHandler()
+    processor = ThriftHiveMetastore.Processor(handler)
     transport = TSocket.TServerSocket(host='127.0.0.1', port=9090)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
-    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
+    # server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
+    server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
 
     # You could do one of these for a multithreaded server
     # server = TServer.TThreadedServer(

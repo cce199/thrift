@@ -1,0 +1,17 @@
+Metadata-Version: 1.1
+Name: thrift-fb303
+Version: 1.0.0
+Summary: Python bindings for the Apache Thrift FB303
+Home-page: http://thrift.apache.org
+Author: ['Apache Thrift Developers']
+Author-email: ['dev@thrift.apache.org']
+License: Apache License 2.0
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 7 - Inactive
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: System :: Networking
