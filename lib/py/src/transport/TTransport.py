@@ -147,15 +147,19 @@ class TSaslClientTransportFactory(object):
     """Factory transport that builds buffered transports"""
     def __init__(self):
         # print("TSaslClientTransportFactory-init")
-        self.authResult = False
+        self.authResult = []
         self.buffered = None
 
     def getTransport(self, trans):
         # trans thrift.transport.TSocket.TSocket
+        # trans list
         # print("TSaslClientTransportFactory-getTransport-trans" + str(trans))
-        if not self.authResult:
-            self.buffered = TSaslClientTransport(trans, '127.0.0.1', 'hive', mechanism='PLAIN')
-            self.authResult = self.buffered.getAuthResult()
+        transAddr = hex(id(trans))
+        if transAddr not in self.authResult:
+            self.buffered = TSaslClientTransport(trans, '127.0.0.1', 'hive', mechanism='PLAIN') #, username= "username", password="passwd", guid=transAddr)
+            if self.buffered.getAuthResult():
+                self.authResult.append(transAddr)
+                print(self.authResult)
         return self.buffered
 
 class TBufferedTransport(TTransportBase, CReadableTransport):
