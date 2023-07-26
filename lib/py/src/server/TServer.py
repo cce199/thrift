@@ -269,10 +269,10 @@ class TForkingServer(TServer):
 
                     # Parent must close socket or the connection may not get
                     # closed promptly
-                    itrans = self.inputTransportFactory.getTransport(client)
-                    otrans = self.outputTransportFactory.getTransport(client)
-                    try_close(itrans)
-                    try_close(otrans)
+                    # itrans = self.inputTransportFactory.getTransport(client)
+                    # otrans = self.outputTransportFactory.getTransport(client)
+                    # try_close(itrans)
+                    # try_close(otrans)
                 else:
                     itrans = self.inputTransportFactory.getTransport(client)
                     iprot = self.inputProtocolFactory.getProtocol(itrans)
