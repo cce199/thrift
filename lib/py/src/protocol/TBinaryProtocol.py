@@ -171,7 +171,8 @@ class TBinaryProtocol(TProtocolBase):
                 raise TProtocolException(type=TProtocolException.BAD_VERSION,
                                          message='No protocol version header')
             name = self.trans.readAll(sz)
-            name = name.decode('utf-8')
+            # name = name.decode('utf-8')
+            name = name.decode('ISO-8859-1')
             print("TBinaryProtocol-readMessageBegin-name:" + name)
             # type = self.readByte()
             type = self.readI16()
