@@ -276,7 +276,7 @@ class TForkingServer(TServer):
                 else:
                     try:
                         itrans = None
-                        iprot = None
+                        otrans = None
                         itrans = self.inputTransportFactory.getTransport(client)
                         iprot = self.inputProtocolFactory.getProtocol(itrans)
 
