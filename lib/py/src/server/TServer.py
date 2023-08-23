@@ -274,6 +274,7 @@ class TForkingServer(TServer):
                     # try_close(itrans)
                     # try_close(otrans)
                 else:
+                    ecode = 0
                     try:
                         itrans = None
                         otrans = None
