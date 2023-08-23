@@ -274,27 +274,22 @@ class TForkingServer(TServer):
                     # try_close(itrans)
                     # try_close(otrans)
                 else:
+                    itrans = self.inputTransportFactory.getTransport(client)
+                    iprot = self.inputProtocolFactory.getProtocol(itrans)
+
+                    # for THeaderProtocol, we must use the same protocol
+                    # instance for input and output so that the response is in
+                    # the same dialect that the server detected the request was
+                    # in.
+                    if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
+                        otrans = None
+                        oprot = iprot
+                    else:
+                        otrans = self.outputTransportFactory.getTransport(client)
+                        oprot = self.outputProtocolFactory.getProtocol(otrans)
+
                     ecode = 0
                     try:
-                        itrans = None
-                        otrans = None
-                        itrans = self.inputTransportFactory.getTransport(client)
-                        iprot = self.inputProtocolFactory.getProtocol(itrans)
-
-                        # for THeaderProtocol, we must use the same protocol
-                        # instance for input and output so that the response is in
-                        # the same dialect that the server detected the request was
-                        # in.
-                        if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
-                            otrans = None
-                            oprot = iprot
-                        else:
-                            otrans = self.outputTransportFactory.getTransport(client)
-                            oprot = self.outputProtocolFactory.getProtocol(otrans)
-
-                        ecode = 0
-
-                    # try:
                         try:
                             while True:
                                 self.processor.process(iprot, oprot)
@@ -303,18 +298,8 @@ class TForkingServer(TServer):
                         except Exception as e:
                             logger.exception(e)
                             ecode = 1
-                    except Exception as x:
-                        # logger.exception(x)
-                        # if itrans:
-                        #     try_close(itrans)
-                        # if otrans:
-                        #     try_close(otrans)
-                        # ecode = 1
-                        pass
-
                     finally:
-                        if itrans:
-                            try_close(itrans)
+                        try_close(itrans)
                         if otrans:
                             try_close(otrans)
 
