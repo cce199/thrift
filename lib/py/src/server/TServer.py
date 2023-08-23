@@ -292,16 +292,8 @@ class TForkingServer(TServer):
                             oprot = self.outputProtocolFactory.getProtocol(otrans)
 
                         ecode = 0
-                    except Exception as x:
-                        # logger.exception(x)
-                        if itrans:
-                            try_close(itrans)
-                        if otrans:
-                            try_close(otrans)
-                        if not itrans:
-                            os._exit(1)
 
-                    try:
+                    # try:
                         try:
                             while True:
                                 self.processor.process(iprot, oprot)
@@ -310,8 +302,17 @@ class TForkingServer(TServer):
                         except Exception as e:
                             logger.exception(e)
                             ecode = 1
+                    except Exception as x:
+                        # logger.exception(x)
+                        # if itrans:
+                        #     try_close(itrans)
+                        # if otrans:
+                        #     try_close(otrans)
+                        ecode = 1
+
                     finally:
-                        try_close(itrans)
+                        if itrans:
+                            try_close(itrans)
                         if otrans:
                             try_close(otrans)
 
