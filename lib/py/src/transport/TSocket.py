@@ -64,7 +64,7 @@ class TSocket(TSocketBase):
         @param socket_family(int)  The socket family to use with this socket.
         @param socket_keepalive(bool) enable TCP keepalive, default off.
         """
-        print("TSocket-init")
+        # print("TSocket-init")
         # print("TSocket-isOpen" + str(self.isOpen()))
         self.host = host
         self.port = port
