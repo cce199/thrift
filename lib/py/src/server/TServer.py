@@ -274,21 +274,29 @@ class TForkingServer(TServer):
                     # try_close(itrans)
                     # try_close(otrans)
                 else:
-                    itrans = self.inputTransportFactory.getTransport(client)
-                    iprot = self.inputProtocolFactory.getProtocol(itrans)
+                    try:
+                        itrans = self.inputTransportFactory.getTransport(client)
+                        iprot = self.inputProtocolFactory.getProtocol(itrans)
 
-                    # for THeaderProtocol, we must use the same protocol
-                    # instance for input and output so that the response is in
-                    # the same dialect that the server detected the request was
-                    # in.
-                    if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
-                        otrans = None
-                        oprot = iprot
-                    else:
-                        otrans = self.outputTransportFactory.getTransport(client)
-                        oprot = self.outputProtocolFactory.getProtocol(otrans)
+                        # for THeaderProtocol, we must use the same protocol
+                        # instance for input and output so that the response is in
+                        # the same dialect that the server detected the request was
+                        # in.
+                        if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
+                            otrans = None
+                            oprot = iprot
+                        else:
+                            otrans = self.outputTransportFactory.getTransport(client)
+                            oprot = self.outputProtocolFactory.getProtocol(otrans)
 
-                    ecode = 0
+                        ecode = 0
+                    except Exception as x:
+                        logger.exception(x)
+                        try_close(itrans)
+                        if otrans:
+                            try_close(otrans)
+                        os._exit(ecode)
+
                     try:
                         try:
                             while True:
