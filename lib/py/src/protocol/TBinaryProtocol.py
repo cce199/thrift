@@ -138,7 +138,11 @@ class TBinaryProtocol(TProtocolBase):
         # print("TBinaryProtocol-readMessageBegin-0sz:" + str(sz0))
         if sz0 == 0:
             return ('',0,0)
-        if sz0 != 16:
+        elif sz0 == 16777216:
+            sz = self.readByte()
+            if sz == 0:
+                return ('',0,0)
+        elif sz0 != 16:
             sz = self.readI32()
             if sz == 0:
                 return ('',0,0)
