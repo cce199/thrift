@@ -293,7 +293,7 @@ class TForkingServer(TServer):
 
                         ecode = 0
                     except Exception as x:
-                        logger.exception(x)
+                        # logger.exception(x)
                         if itrans:
                             try_close(itrans)
                         if otrans:
