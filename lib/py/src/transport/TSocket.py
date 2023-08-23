@@ -180,7 +180,7 @@ class TSocket(TSocketBase):
             else:
                 raise TTransportException(message="unexpected exception", inner=e)
         if len(buff) == 0:
-            print("TSocket-read-TTransportException")
+            # print("TSocket-read-TTransportException")
             # raise TTransportException(type=TTransportException.END_OF_FILE,
             #                           message='TSocket read 0 bytes')
         return buff
