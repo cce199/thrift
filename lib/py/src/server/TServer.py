@@ -309,7 +309,8 @@ class TForkingServer(TServer):
                             logger.exception(e)
                             ecode = 1
                     finally:
-                        try_close(itrans)
+                        if itrans:
+                            try_close(itrans)
                         if otrans:
                             try_close(otrans)
 
