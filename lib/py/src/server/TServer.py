@@ -298,6 +298,7 @@ class TForkingServer(TServer):
                         if otrans:
                             try_close(otrans)
                         ecode = 1
+                        os._exit(ecode)
                         
                     try:
                         try:
