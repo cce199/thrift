@@ -305,7 +305,14 @@ class TForkingServer(TServer):
                             while True:
                                 self.processor.process(iprot, oprot)
                         except TTransport.TTransportException:
-                            pass
+                            # pass
+                            print("============ TTransport.TTransportException: ================")
+                            print(self.processor._handler.sparkHndler.keys())
+                            
+                            for guid in self.processor._handler.sparkHndler.keys():
+                                print('SparkThriftHandler-CloseSession-call spark close')
+                                self.processor._handler.sparkHndler[guid].closeConnection()
+                        
                         except Exception as e:
                             logger.exception(e)
                             ecode = 1

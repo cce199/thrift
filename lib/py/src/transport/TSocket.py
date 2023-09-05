@@ -175,7 +175,7 @@ class TSocket(TSocketBase):
                 self.close()
                 # Trigger the check to raise the END_OF_FILE exception below.
                 buff = b''
-            elif e.args[0] == errno.ETIMEDOUT:
+            elif e.args[0] == errno.ETIMEDOUT or str(e.args[0]) == "timed out":
                 raise TTransportException(type=TTransportException.TIMED_OUT, message="read timeout", inner=e)
             else:
                 raise TTransportException(message="unexpected exception", inner=e)
@@ -211,13 +211,14 @@ class TSocket(TSocketBase):
 class TServerSocket(TSocketBase, TServerTransportBase):
     """Socket implementation of TServerTransport base."""
 
-    def __init__(self, host=None, port=9090, unix_socket=None, socket_family=socket.AF_UNSPEC):
+    def __init__(self, host=None, port=9090, unix_socket=None, socket_family=socket.AF_UNSPEC, session_timeout=None):
         self.host = host
         self.port = port
         self._unix_socket = unix_socket
         self._socket_family = socket_family
         self.handle = None
         self._backlog = 128
+        self.session_timeout = session_timeout
 
     def setBacklog(self, backlog=None):
         if not self.handle:
@@ -258,4 +259,5 @@ class TServerSocket(TSocketBase, TServerTransportBase):
         client, addr = self.handle.accept()
         result = TSocket()
         result.setHandle(client)
+        result.setTimeout(self.session_timeout)
         return result
