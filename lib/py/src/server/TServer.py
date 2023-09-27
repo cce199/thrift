@@ -19,7 +19,7 @@
 
 from six.moves import queue
 import logging
-import os
+import os, sys
 import threading
 
 from thrift.protocol import TBinaryProtocol
@@ -258,9 +258,11 @@ class TForkingServer(TServer):
         while True:
             client = self.serverTransport.accept()
             if not client:
-                continue
+                # continue
+                break
             try:
                 pid = os.fork()
+                ParentItrans = None
 
                 if pid:  # parent
                     # add before collect, otherwise you race w/ waitpid
@@ -274,51 +276,53 @@ class TForkingServer(TServer):
                     # try_close(itrans)
                     # try_close(otrans)
                 else:
-                    try:
-                        itrans = None
+                    # try:
+                    #     itrans = None
+                    #     otrans = None
+                    #     itrans = self.inputTransportFactory.getTransport(client)
+                    #     iprot = self.inputProtocolFactory.getProtocol(itrans)
+                    print("ChildTForkServer")
+                    itrans = self.inputTransportFactory.getTransport(client, isFork=True)
+                    iprot = self.inputProtocolFactory.getProtocol(itrans)
+
+                    # for THeaderProtocol, we must use the same protocol
+                    # instance for input and output so that the response is in
+                    # the same dialect that the server detected the request was
+                    # in.
+                    if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
                         otrans = None
-                        itrans = self.inputTransportFactory.getTransport(client)
-                        iprot = self.inputProtocolFactory.getProtocol(itrans)
+                        oprot = iprot
+                    else:
+                        otrans = self.outputTransportFactory.getTransport(client)
+                        oprot = self.outputProtocolFactory.getProtocol(otrans)
 
-                        # for THeaderProtocol, we must use the same protocol
-                        # instance for input and output so that the response is in
-                        # the same dialect that the server detected the request was
-                        # in.
-                        if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
-                            otrans = None
-                            oprot = iprot
-                        else:
-                            otrans = self.outputTransportFactory.getTransport(client)
-                            oprot = self.outputProtocolFactory.getProtocol(otrans)
-
-                        ecode = 0
-                    except:
-                        if itrans:
-                            try_close(itrans)
-                        if otrans:
-                            try_close(otrans)
-                        ecode = 1
-                        os._exit(ecode)
-                        
+                    ecode = 0
+                    # except:
+                    #     if itrans:
+                    #         try_close(itrans)
+                    #     if otrans:
+                    #         try_close(otrans)
+                    #     ecode = 1
+                    #     os._exit(ecode)
                     try:
                         try:
                             while True:
                                 self.processor.process(iprot, oprot)
                         except TTransport.TTransportException:
-                            # pass
+                            pass
                             print("============ TTransport.TTransportException: ================")
                             print(self.processor._handler.sparkHndler.keys())
                             
                             for guid in self.processor._handler.sparkHndler.keys():
                                 print('SparkThriftHandler-CloseSession-call spark close')
                                 self.processor._handler.sparkHndler[guid].closeConnection()
-                        
+
                         except Exception as e:
                             logger.exception(e)
                             ecode = 1
                     finally:
-                        if itrans:
-                            try_close(itrans)
+                        # if itrans:
+                        try_close(itrans)
                         if otrans:
                             try_close(otrans)
 
