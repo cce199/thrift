@@ -150,7 +150,7 @@ class TSaslClientTransportFactory(object):
         self.authResult = []
         self.buffered = None
 
-    def getTransport(self, trans):
+    def getTransport(self, trans, isFork=False):
         # trans thrift.transport.TSocket.TSocket
         # trans list
         # print("TSaslClientTransportFactory-getTransport-trans" + str(trans))
