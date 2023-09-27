@@ -162,10 +162,10 @@ class TSocket(TSocketBase):
             buff = self.handle.recv(sz)
             # socket.MSG_DONTWAIT socket.MSG_TRUNC
             # buff = self.handle.recv(sz )
-            # print("TSocket-read:" + str(buff))
+            print("TSocket-read:" + str(os.getpid()) + " : " + str(buff))
             # buff = buff[0]
         except socket.error as e:
-            print("TSocket-read-socket.error" + str(e))
+            print("TSocket-read-socket.error : " + str(e))
             if (e.args[0] == errno.ECONNRESET and
                     (sys.platform == 'darwin' or sys.platform.startswith('freebsd'))):
                 # freebsd and Mach don't follow POSIX semantic of recv
