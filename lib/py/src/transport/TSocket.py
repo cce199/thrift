@@ -257,6 +257,7 @@ class TServerSocket(TSocketBase, TServerTransportBase):
 
     def accept(self):
         client, addr = self.handle.accept()
+        print(client)
         result = TSocket()
         result.setHandle(client)
         result.setTimeout(self.session_timeout)
