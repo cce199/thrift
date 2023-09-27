@@ -157,7 +157,7 @@ class TSocket(TSocketBase):
     def read(self, sz):
         try:
             # print(self.handle)
-            # print("TSocket-read")
+            print("TSocket-read: size " + str(sz))
             # print(self.handle) # <socket.socket
             buff = self.handle.recv(sz)
             # socket.MSG_DONTWAIT socket.MSG_TRUNC
