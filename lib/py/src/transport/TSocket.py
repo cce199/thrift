@@ -168,6 +168,8 @@ class TSocket(TSocketBase):
                 buffParts = self.handle.recv(recvSize)
                 buff += buffParts
                 if not (len(buff) < sz and len(buffParts) >= BUFFSIZE):
+                    print(str(len(buff)))
+                    print(str(len(buffParts)))
                     break
             # socket.MSG_DONTWAIT socket.MSG_TRUNC
             # buff = self.handle.recv(sz )
