@@ -161,7 +161,7 @@ class TSocket(TSocketBase):
             # print(self.handle) # <socket.socket
             # buff = self.handle.recv(sz)
             buff = buffParts = b''
-            BUFFSIZE = 1024
+            BUFFSIZE = 4096
             while True:
                 recvSize = BUFFSIZE if sz - len(buff) > BUFFSIZE else sz - len(buff)
                 print("TSocket-read-recvSize : " + str(recvSize))
