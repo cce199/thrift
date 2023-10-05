@@ -174,7 +174,7 @@ class TSocket(TSocketBase):
                 else:
                     buffParts = self.handle.recv(recvSize, socket.MSG_WAITALL)
                 buff += buffParts
-                if not (len(buff) < sz and len(buffParts) >= BUFFSIZE):
+                if len(buff) >= sz or sz == 16777216: # and len(buffParts) >= BUFFSIZE):
                     print(str(len(buff)))
                     print(str(len(buffParts)))
                     break
