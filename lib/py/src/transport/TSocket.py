@@ -168,15 +168,15 @@ class TSocket(TSocketBase):
             BUFFSIZE = 1024
             while True:
                 recvSize = BUFFSIZE if sz - len(buff) > BUFFSIZE else sz - len(buff)
-                print("TSocket-read-recvSize : " + str(recvSize))
+                # print("TSocket-read-recvSize : " + str(recvSize))
                 # if sz == 16777216:
                 buffParts = self.handle.recv(sz)
                 # else:
                 #     buffParts = self.handle.recv(recvSize, socket.MSG_WAITALL)
                 buff += buffParts
                 if len(buff) >= sz or sz == 16777216: # and len(buffParts) >= BUFFSIZE):
-                    print(str(len(buff)))
-                    print(str(len(buffParts)))
+                    # print(str(len(buff)))
+                    # print(str(len(buffParts)))
                     break
             # socket.MSG_DONTWAIT socket.MSG_TRUNC
             # buff = self.handle.recv(sz )
