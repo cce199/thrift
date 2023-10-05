@@ -160,17 +160,21 @@ class TSocket(TSocketBase):
             print("TSocket-read: size " + str(sz))
             # print(self.handle) # <socket.socket
             # buff = self.handle.recv(sz)
-            buff = buffParts = b''
-            BUFFSIZE = 4096
-            while True:
-                recvSize = BUFFSIZE if sz - len(buff) > BUFFSIZE else sz - len(buff)
-                print("TSocket-read-recvSize : " + str(recvSize))
-                buffParts = self.handle.recv(recvSize)
-                buff += buffParts
-                if not (len(buff) < sz and len(buffParts) >= BUFFSIZE):
-                    print(str(len(buff)))
-                    print(str(len(buffParts)))
-                    break
+            if sz == 16777216:
+                buff = self.handle.recv(sz)
+            else:
+                buff = self.handle.recv(sz, socket.MSG_WAITALL)
+            # buff = buffParts = b''
+            # BUFFSIZE = 4096
+            # while True:
+            #     recvSize = BUFFSIZE if sz - len(buff) > BUFFSIZE else sz - len(buff)
+            #     print("TSocket-read-recvSize : " + str(recvSize))
+            #     buffParts = self.handle.recv(recvSize)
+            #     buff += buffParts
+            #     if not (len(buff) < sz and len(buffParts) >= BUFFSIZE):
+            #         print(str(len(buff)))
+            #         print(str(len(buffParts)))
+            #         break
             # socket.MSG_DONTWAIT socket.MSG_TRUNC
             # buff = self.handle.recv(sz )
             print("TSocket-read:" + str(os.getpid()) + " : " + str(buff))
