@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 class TSocketBase(TTransportBase):
     def _resolveAddr(self):
-        print("_resolveAddr")
+        # print("_resolveAddr")
         if self._unix_socket is not None:
             return [(socket.AF_UNIX, socket.SOCK_STREAM, None, None,
                      self._unix_socket)]
@@ -275,7 +275,7 @@ class TServerSocket(TSocketBase, TServerTransportBase):
 
     def accept(self):
         client, addr = self.handle.accept()
-        print(client)
+        # print(client)
         result = TSocket()
         result.setHandle(client)
         result.setTimeout(self.session_timeout)
