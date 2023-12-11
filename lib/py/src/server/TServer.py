@@ -269,6 +269,7 @@ class TForkingServer(TServer):
 
                 if pid:  # parent
                     # add before collect, otherwise you race w/ waitpid
+                    print("parent")
                     self.children.append(pid)
                     self.collect_children()
 

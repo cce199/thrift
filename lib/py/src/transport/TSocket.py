@@ -240,7 +240,7 @@ class TServerSocket(TSocketBase, TServerTransportBase):
         self._unix_socket = unix_socket
         self._socket_family = socket_family
         self.handle = None
-        self._backlog = 2
+        self._backlog = 128
         self.session_timeout = session_timeout
 
     def setBacklog(self, backlog=None):
