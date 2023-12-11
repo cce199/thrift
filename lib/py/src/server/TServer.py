@@ -258,8 +258,8 @@ class TForkingServer(TServer):
         while True:
             client = self.serverTransport.accept()
             if not client:
-                # continue
-                break
+                continue
+                # break
             try:
                 pid = os.fork()
                 ParentItrans = None
