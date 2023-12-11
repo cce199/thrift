@@ -240,7 +240,7 @@ class TServerSocket(TSocketBase, TServerTransportBase):
         self._unix_socket = unix_socket
         self._socket_family = socket_family
         self.handle = None
-        self._backlog = 128
+        self._backlog = 2
         self.session_timeout = session_timeout
 
     def setBacklog(self, backlog=None):
@@ -253,8 +253,6 @@ class TServerSocket(TSocketBase, TServerTransportBase):
 
     def listen(self):
         res0 = self._resolveAddr()
-        print("TSocket-listion")
-        print(res0)
         socket_family = self._socket_family == socket.AF_UNSPEC and socket.AF_INET6 or self._socket_family
         for res in res0:
             if res[0] is socket_family or res is res0[-1]:
