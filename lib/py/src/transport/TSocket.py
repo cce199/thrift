@@ -253,6 +253,8 @@ class TServerSocket(TSocketBase, TServerTransportBase):
 
     def listen(self):
         res0 = self._resolveAddr()
+        print("TSocket-listion")
+        print(res0)
         socket_family = self._socket_family == socket.AF_UNSPEC and socket.AF_INET6 or self._socket_family
         for res in res0:
             if res[0] is socket_family or res is res0[-1]:
