@@ -192,7 +192,7 @@ class TProtocolBase(object):
         return self.readString().decode('utf8')
 
     def skip(self, ttype):
-        print(ttype)
+        # print(ttype)
         if ttype == TType.BOOL:
             self.readBool()
         elif ttype == TType.BYTE:

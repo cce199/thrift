@@ -50,11 +50,11 @@ class TTransportBase(object):
         pass
 
     def close(self):
-        print("TTransportBase-close")
+        # print("TTransportBase-close")
         pass
 
     def read(self, sz):
-        print("TTransportBase-read")
+        # print("TTransportBase-read")
         pass
 
     def readAll(self, sz):
@@ -187,7 +187,7 @@ class TBufferedTransport(TTransportBase, CReadableTransport):
         return self.__trans.close()
 
     def read(self, sz):
-        print("TTransport-TBufferedTransport-read")
+        # print("TTransport-TBufferedTransport-read")
         # print(self.__trans) <thrift.transport.TSocket.TSocket
         # print(self.__rbuf) # <_io.BytesIO
         ret = self.__rbuf.read(sz)
@@ -195,7 +195,7 @@ class TBufferedTransport(TTransportBase, CReadableTransport):
         if len(ret) != 0:
             return ret 
         # print(self.__trans.read(max(sz, self.__rbuf_size)))
-        print("TTransport-TBufferedTransport-read-trans.read")
+        # print("TTransport-TBufferedTransport-read-trans.read")
         # self.__rbuf = BufferIO(self.__trans.read(max(sz, self.__rbuf_size)))
         self._read_frame()
         # print("TTransport-readRBuf")
@@ -205,15 +205,15 @@ class TBufferedTransport(TTransportBase, CReadableTransport):
 
     def _read_frame(self):
         header = self.__trans.readAll(4)
-        print("TTransport-TBufferedTransport-_read_frame-header:" + str(header))
+        # print("TTransport-TBufferedTransport-_read_frame-header:" + str(header))
         if len(header) == 0:
             self.__rbuf = BufferIO(b'')
             return
         length, = unpack('!i', header)
         encoded = self.__trans.readAll(length)
-        print(encoded)
+        # print(encoded)
         self.__rbuf = BufferIO(encoded)
-        print("TTransport-TBufferedTransport-_read_frame")
+        # print("TTransport-TBufferedTransport-_read_frame")
 
     def write(self, buf):
         try:
@@ -430,12 +430,14 @@ class TSaslClientTransport(TTransportBase, CReadableTransport):
         self.sasl = SASLClient(host, service, mechanism, **sasl_kwargs)
 
         self.__wbuf = BufferIO()
-        self.__rbuf = BufferIO(b'')
-        if True: # auth success
+        self.__rbuf = BufferIO(b'')        
+        if 'PLAIN' in str(encoded): # True: # auth success
             self.send_sasl_msg(self.COMPLETE, self.sasl.process())
             self.authResult = True
-            
-        
+        else:
+            self.send_sasl_msg(self.COMPLETE, self.sasl.process())
+            raise Exception("not PLAIN")
+
         # print(self.__rbuf)
 
     def open(self):

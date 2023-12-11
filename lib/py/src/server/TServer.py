@@ -282,8 +282,13 @@ class TForkingServer(TServer):
                     #     itrans = self.inputTransportFactory.getTransport(client)
                     #     iprot = self.inputProtocolFactory.getProtocol(itrans)
                     print("ChildTForkServer")
-                    itrans = self.inputTransportFactory.getTransport(client, isFork=True)
-                    iprot = self.inputProtocolFactory.getProtocol(itrans)
+                    ecode = 0
+                    try:
+                        itrans = self.inputTransportFactory.getTransport(client, isFork=True)
+                        iprot = self.inputProtocolFactory.getProtocol(itrans)
+                    except Exception as e:
+                        print(e)
+                        os._exit(ecode)
 
                     # for THeaderProtocol, we must use the same protocol
                     # instance for input and output so that the response is in
@@ -296,7 +301,6 @@ class TForkingServer(TServer):
                         otrans = self.outputTransportFactory.getTransport(client)
                         oprot = self.outputProtocolFactory.getProtocol(otrans)
 
-                    ecode = 0
                     # except:
                     #     if itrans:
                     #         try_close(itrans)

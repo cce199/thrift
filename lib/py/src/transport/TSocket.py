@@ -117,7 +117,7 @@ class TSocket(TSocketBase):
             self.handle.settimeout(self._timeout)
 
     def _do_open(self, family, socktype):
-        print("TSocket-_do_open")
+        # print("TSocket-_do_open")
         return socket.socket(family, socktype)
 
     @property
@@ -125,7 +125,7 @@ class TSocket(TSocketBase):
         return self._unix_socket if self._unix_socket else '%s:%d' % (self.host, self.port)
 
     def open(self):
-        print("TSocket-open")
+        # print("TSocket-open")
         if self.handle:
             raise TTransportException(type=TTransportException.ALREADY_OPEN, message="already open")
         try:
@@ -157,7 +157,7 @@ class TSocket(TSocketBase):
     def read(self, sz):
         try:
             # print(self.handle)
-            print("TSocket-read: size " + str(sz))
+            # print("TSocket-read: size " + str(sz))
             # print(self.handle) # <socket.socket
             # buff = self.handle.recv(sz)
             # if sz == 16777216:
@@ -174,15 +174,16 @@ class TSocket(TSocketBase):
                 # else:
                 #     buffParts = self.handle.recv(recvSize, socket.MSG_WAITALL)
                 buff += buffParts
-                if len(buff) >= sz or sz == 16777216 or sz == 1195725856: # and len(buffParts) >= BUFFSIZE):
+                if len(buff) >= sz or sz == 16777216: # and len(buffParts) >= BUFFSIZE):
                     # 16777216 : ?
                     # 1195725856 : curl
                     # print(str(len(buff)))
                     # print(str(len(buffParts)))
                     break
+                if sz == 1195725856
             # socket.MSG_DONTWAIT socket.MSG_TRUNC
             # buff = self.handle.recv(sz )
-            print("TSocket-read:" + str(os.getpid()) + " : " + str(buff))
+            # print("TSocket-read:" + str(os.getpid()) + " : " + str(buff))
             # buff = buff[0]
         except socket.error as e:
             print("TSocket-read-socket.error : " + str(e))
