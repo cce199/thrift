@@ -257,9 +257,9 @@ class TForkingServer(TServer):
         self.serverTransport.listen()
         while True:
             client = self.serverTransport.accept()
-            print("Serve")
-            print(self.serverTransport)
-            print(client)
+            # print("Serve")
+            # print(self.serverTransport)
+            # print(client)
             if not client:
                 continue
                 # break
@@ -285,7 +285,7 @@ class TForkingServer(TServer):
                     #     itrans = self.inputTransportFactory.getTransport(client)
                     #     iprot = self.inputProtocolFactory.getProtocol(itrans)
                     print("ChildTForkServer")
-                    print(self.children)
+                    # print(self.children)
                     ecode = 0
                     try:
                         itrans = self.inputTransportFactory.getTransport(client, isFork=True)
@@ -298,7 +298,7 @@ class TForkingServer(TServer):
                     # instance for input and output so that the response is in
                     # the same dialect that the server detected the request was
                     # in.
-                    print("THeaderProtocol")
+                    # print("THeaderProtocol")
                     if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
                         otrans = None
                         oprot = iprot
@@ -313,7 +313,7 @@ class TForkingServer(TServer):
                     #         try_close(otrans)
                     #     ecode = 1
                     #     os._exit(ecode)
-                    print("try-try")
+                    # print("try-try")
                     try:
                         try:
                             while True:

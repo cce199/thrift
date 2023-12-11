@@ -153,7 +153,7 @@ class TSaslClientTransportFactory(object):
     def getTransport(self, trans, isFork=False):
         # trans thrift.transport.TSocket.TSocket
         # trans list
-        print("TSaslClientTransportFactory-getTransport-trans" + str(trans))
+        # print("TSaslClientTransportFactory-getTransport-trans" + str(trans))
         transAddr = hex(id(trans))
         if transAddr not in self.authResult:
             self.buffered = TSaslClientTransport(trans, '127.0.0.1', 'hive', mechanism='PLAIN') #, username= "username", password="passwd", guid=transAddr)
