@@ -257,6 +257,9 @@ class TForkingServer(TServer):
         self.serverTransport.listen()
         while True:
             client = self.serverTransport.accept()
+            print("Serve")
+            print(self.serverTransport)
+            print(client)
             if not client:
                 continue
                 # break
@@ -282,6 +285,7 @@ class TForkingServer(TServer):
                     #     itrans = self.inputTransportFactory.getTransport(client)
                     #     iprot = self.inputProtocolFactory.getProtocol(itrans)
                     print("ChildTForkServer")
+                    print(self.children)
                     ecode = 0
                     try:
                         itrans = self.inputTransportFactory.getTransport(client, isFork=True)
