@@ -269,7 +269,6 @@ class TForkingServer(TServer):
 
                 if pid:  # parent
                     # add before collect, otherwise you race w/ waitpid
-                    print("parent")
                     self.children.append(pid)
                     self.collect_children()
 
@@ -299,6 +298,7 @@ class TForkingServer(TServer):
                     # instance for input and output so that the response is in
                     # the same dialect that the server detected the request was
                     # in.
+                    print("THeaderProtocol")
                     if isinstance(self.inputProtocolFactory, THeaderProtocolFactory):
                         otrans = None
                         oprot = iprot
@@ -313,6 +313,7 @@ class TForkingServer(TServer):
                     #         try_close(otrans)
                     #     ecode = 1
                     #     os._exit(ecode)
+                    print("try-try")
                     try:
                         try:
                             while True:
