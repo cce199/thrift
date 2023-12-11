@@ -117,6 +117,8 @@ class TBinaryProtocol(TProtocolBase):
 
     def writeI32(self, i32):
         print("TBinaryProtocol-writeI32 : " + str(i32))
+        print(i32)
+        print(type(i32))
         buff = pack("!i", i32)
         # print("TBinaryProtocol-writeI32" + str(buff))
         self.trans.write(buff)
