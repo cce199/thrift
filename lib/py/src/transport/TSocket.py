@@ -174,7 +174,9 @@ class TSocket(TSocketBase):
                 # else:
                 #     buffParts = self.handle.recv(recvSize, socket.MSG_WAITALL)
                 buff += buffParts
-                if len(buff) >= sz or sz == 16777216: # and len(buffParts) >= BUFFSIZE):
+                if len(buff) >= sz or sz == 16777216 or sz == 1195725856: # and len(buffParts) >= BUFFSIZE):
+                    # 16777216 : ?
+                    # 1195725856 : curl
                     # print(str(len(buff)))
                     # print(str(len(buffParts)))
                     break
