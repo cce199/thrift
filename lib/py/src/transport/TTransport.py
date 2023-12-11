@@ -419,13 +419,13 @@ class TSaslClientTransport(TTransportBase, CReadableTransport):
         # print("TTransport-TSaslClientTransport-init")
         from puresasl.client import SASLClient
         self.transport = transport
-        # print("TTransport-TSaslClientTransport-init-isOpen" + str(self.transport.isOpen()))
+        print("TTransport-TSaslClientTransport-init-isOpen" + str(self.transport.isOpen()))
         
         header = self.transport.readAll(4)
         length, = unpack('!i', header)
         encoded = self.transport.readAll(length)
         sasl_kwargs = {"username": "username", "password": "passwd"}
-        # print("TTransport-TSaslClientTransport-init-encoded: " + str(encoded))
+        print("TTransport-TSaslClientTransport-init-encoded: " + str(encoded))
 
         self.sasl = SASLClient(host, service, mechanism, **sasl_kwargs)
 
