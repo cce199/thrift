@@ -120,7 +120,7 @@ class TBinaryProtocol(TProtocolBase):
         # print(i32)
         # print(type(i32))
         if type(i32) != int:
-            i32 = b'0x00'
+            i32 = b'\x00'
         buff = pack("!i", i32)
         # print("TBinaryProtocol-writeI32" + str(buff))
         self.trans.write(buff)
